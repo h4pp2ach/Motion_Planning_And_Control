@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 class AverageFilter:
     def __init__(self, y_initial_measure):
         self.y_estimate = y_initial_measure
-        # Code
+        self.k = 1
                  
     def estimate(self, y_measure):
-        # Code
+        self.k += 1
+        self.y_estimate = ((self.k-1)/self.k)*self.y_estimate + (1/self.k)*y_measure
     
 if __name__ == "__main__":
     signal = pd.read_csv("./01_filter/Data/example_Filter_1.csv")
