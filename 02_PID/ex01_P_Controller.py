@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class P_Controller(object):
-    def __init__(self, P_Gain=0.5):
-        # Code
+    def __init__(self, P_Gain = 0.5):
+        self.Kp = P_Gain
+        self.u = 0.0
         
     def ControllerInput(self, reference, measure):
-        # Code
+        self.u = self.Kp*(reference - measure)
 
 
 if __name__ == "__main__":
@@ -17,7 +18,7 @@ if __name__ == "__main__":
     step_time = 0.1
     simulation_time = 30   
     plant = VehicleModel(step_time, 0.0, 0.99, 0.1)
-    controller = P_Controller()
+    controller = P_Controller(0.15)
     
     for i in range(int(simulation_time/step_time)):
         time.append(step_time*i)
