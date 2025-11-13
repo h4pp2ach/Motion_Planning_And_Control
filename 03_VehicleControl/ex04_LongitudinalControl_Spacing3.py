@@ -20,8 +20,11 @@ if __name__ == "__main__":
     time = []
     target_vehicle = VehicleModel_Long(step_time, m, 0.0, 30.0, 10.0)
     ego_vehicle = VehicleModel_Long(step_time, m, 0.5, 0.0, 5.0)
-    #controller = PID_Controller_ConstantSpace(step_time, target_vehicle.x, ego_vehicle.x)
-    controller = PID_Controller_ConstantTimeGap(step_time, target_vehicle.x, ego_vehicle.x, ego_vehicle.vx)
+    #controller = PID_Controller_ConstantSpace(step_time, target_vehicle.x, ego_vehicle.x,
+    #                                          constantSpace = 10.0, P_Gain = 0.6, D_Gain = 1.3, I_Gain = 0.0)
+    controller = PID_Controller_ConstantTimeGap(step_time, target_vehicle.x, ego_vehicle.x, ego_vehicle.vx,
+                                                timegap = 7.0, P_Gain = 0.5, D_Gain = 0.03, I_Gain = 0.0)
+    
     for i in range(int(simulation_time/step_time)):
         time.append(step_time*i)
         vx_ego.append(ego_vehicle.vx)
@@ -66,7 +69,7 @@ if __name__ == "__main__":
     plt.plot([0, time[-1]], [controller.timegap, controller.timegap],'k-',label = "reference timegap [s]")
     plt.plot(time, timegap,'b-',label = "timegap [s]")
     plt.xlabel('time [s]')
-    plt.ylabel('x')
+    plt.ylabel('time_gap')
     plt.legend(loc="best")
     plt.axis("equal")
     plt.grid(True)    
