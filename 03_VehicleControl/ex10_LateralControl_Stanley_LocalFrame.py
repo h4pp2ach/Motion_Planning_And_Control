@@ -6,6 +6,18 @@ from ex06_GlobalFrame2LocalFrame import Global2Local
 from ex06_GlobalFrame2LocalFrame import PolynomialFitting
 from ex06_GlobalFrame2LocalFrame import PolynomialValue
 
+class StanleyMethod(object):
+    def __init__(self, Stanley_Gain = 1.0):
+        self.k = Stanley_Gain     
+        self.u = 0
+        
+    def ControllerInput(self, coeff, Vx):
+        
+        error_heading = np.arctan(coeff[1][0])
+        error_y = coeff[0][0]
+        
+        self.u = error_heading + np.atan2(self.k*(error_y), Vx + 0.001)
+        
     
 if __name__ == "__main__":
     step_time = 0.1
@@ -16,12 +28,6 @@ if __name__ == "__main__":
     num_degree = 3
     num_point = 5
     x_local = np.arange(0.0, 10.0, 0.5)
-
-    class StanleyMethod(object):
-        def __init__(self):
-            # Code
-        def ControllerInput(self):
-            # Code
     
     time = []
     X_ego = []
@@ -31,18 +37,21 @@ if __name__ == "__main__":
     frameconverter = Global2Local(num_point)
     polynomialfit = PolynomialFitting(num_degree,num_point)
     polynomialvalue = PolynomialValue(num_degree,np.size(x_local))
-    controller = StanleyMethod(step_time, polynomialfit.coeff, Vx)
+    controller = StanleyMethod(Stanley_Gain = 5.0)
     
     for i in range(int(simulation_time/step_time)):
         time.append(step_time*i)
         X_ego.append(ego_vehicle.X)
         Y_ego.append(ego_vehicle.Y)
+        
         X_ref_convert = np.arange(ego_vehicle.X, ego_vehicle.X+5.0, 1.0)
         Y_ref_convert = 2.0-2*np.cos(X_ref_convert/10)
         Points_ref = np.transpose(np.array([X_ref_convert, Y_ref_convert]))
-        frameconverter.convert(Points_ref, ego_vehicle.Yaw, ego_vehicle.X, ego_vehicle.Y)
+        
+        frameconverter.convert(Points_ref[:num_point], ego_vehicle.Yaw, ego_vehicle.X, ego_vehicle.Y)
         polynomialfit.fit(frameconverter.LocalPoints)
         polynomialvalue.calculate(polynomialfit.coeff, x_local)
+        
         controller.ControllerInput(polynomialfit.coeff, Vx)
         ego_vehicle.update(controller.u, Vx)
 
