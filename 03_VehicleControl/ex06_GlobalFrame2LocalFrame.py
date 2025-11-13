@@ -8,18 +8,31 @@ class Global2Local(object):
         self.LocalPoints = np.zeros((num_points,2))
     
     def convert(self, points, Yaw_ego, X_ego, Y_ego):
-        # Code
+        R_inv = np.array([[  np.cos(Yaw_ego), np.sin(Yaw_ego)],
+                          [- np.sin(Yaw_ego), np.cos(Yaw_ego)]])
+        
+        for i, point in enumerate(points):
+            self.GlobalPoints[i] = point
+            point_local = R_inv @ np.array([[point[0] - X_ego],
+                                            [point[1] - Y_ego]])
             
+            self.LocalPoints[i] = [point_local[0][0], point_local[1][0]]
+
 class PolynomialFitting(object):
     def __init__(self, num_degree, num_points):
         self.nd = num_degree
         self.np = num_points
         self.A = np.zeros((self.np, self.nd+1))
-        self.b = np.zeros((self.np,1))
-        self.coeff = np.zeros((num_degree+1,1))
+        self.b = np.zeros((self.np, 1))
+        self.coeff = np.zeros((num_degree+1, 1))
         
     def fit(self, points):
-        # Code
+        for i, point in enumerate(points):
+            self.b[i] = point[1]
+            for degree in range(self.nd+1):
+                self.A[i][degree] = point[0]**(degree)
+        
+        self.coeff = np.linalg.pinv(self.A) @ self.b
 
 class PolynomialValue(object):
     def __init__(self, num_degree, num_points):
@@ -30,13 +43,20 @@ class PolynomialValue(object):
         self.points = np.zeros((self.np, 2))
         
     def calculate(self, coeff, x):
-        # Code
+        
+        for i, x_i in enumerate(x):
+            for degree in range(self.nd+1):
+                self.x[0, degree] = x_i**(degree)
+            
+            self.y[i] = self.x @ coeff
+            self.points[i][0] = x_i
+            self.points[i][1] = self.y[i]
         
         
 if __name__ == "__main__":
     num_degree = 3
-    num_point = 4
-    points = np.array([[1,2],[3,3],[4,4],[5,5]])
+    points = np.array([[1,2],[3,3],[4,4],[5,5],[6,8]])
+    num_point = points.shape[0]
     X_ego = 2.0
     Y_ego = 0.0
     Yaw_ego = np.pi/4
