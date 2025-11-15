@@ -22,6 +22,9 @@ def lane(X_ref, lanewidth=4.0):
             Y_ref_R.append(2.0-2*np.cos(X_ref[i]/10)-lanewidth/2)
             isLaneValid_L.append(True)
             isLaneValid_R.append(True)
+    
+    isLaneValid_L = True if np.mean(isLaneValid_L) > 0.6 else False
+    isLaneValid_R = True if np.mean(isLaneValid_R) > 0.6 else False
     return Y_ref_L, Y_ref_R, isLaneValid_L, isLaneValid_R
 
 if __name__ == "__main__":
